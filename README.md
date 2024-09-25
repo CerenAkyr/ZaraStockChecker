@@ -22,9 +22,15 @@ pip install -r requirements.txt
 Sonrasında, config dosyasına girin vee:
 Buraya istediğiniz linkleri formatı bozmadan girin:
 ```
- "urls": [
-        "https://www.zara.com/tr/tr/dugumlu-ajurlu-triko-elbise-p02756024.html?v1=367462396",
-        "https://www.zara.com/tr/tr/parlak-tasli-kisa-elbise-p04764302.html?v1=363971227"
+  "urls": [
+        {
+            "store": "rossmann",
+            "url": "https://www.rossmann.com.tr/isana-sac-bakim-kuru-argan-yagi-25-ml-p-sr17010004"
+        },
+        {
+            "store": "zara",
+            "url": "https://www.zara.com/tr/tr/genis-yaka-blazer-p09083580.html?v1=399287227&v2=2419517"
+        }
     ],
 ```
 Buraya stoğunu istediğiniz bedenleri yazın:
