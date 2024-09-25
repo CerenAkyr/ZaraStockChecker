@@ -10,7 +10,7 @@
         }
     ],
     "sizes_to_check": [ "S"],
-    "sleep_min_seconds": 100,  
-    "sleep_max_seconds": 200,  
+    "sleep_min_seconds": 12,  
+    "sleep_max_seconds": 22,  
     "chrome_driver_path": "../../DesktopHolder/chromedriver-win64/chromedriver.exe"
 }

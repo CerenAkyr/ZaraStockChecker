@@ -7,7 +7,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from playsound import playsound
+import pygame
 from scraperHelpers import check_stock, rossmannStockCheck
 
 # Load configuration from config.json
@@ -21,9 +21,15 @@ sleep_min_seconds = config["sleep_min_seconds"]
 sleep_max_seconds = config["sleep_max_seconds"]
 chrome_driver_path = config["chrome_driver_path"]
 
-# To only add to the cart once :)
+# Initialize pygame mixer for playing sound
+pygame.mixer.init()
+
+# To only add to the cart once
 cart_status = {item["url"]: False for item in urls_to_check}
 
+def play_sound(sound_file):
+    pygame.mixer.music.load(sound_file)
+    pygame.mixer.music.play()
 
 while True:
     # Create a service object with the path to ChromeDriver from the config
@@ -49,7 +55,7 @@ while True:
                     print(f"Url {url} için: ")
                     if store == "rossmann":
                         if rossmannStockCheck(driver):
-                            playsound('Crystal.mp3')
+                            play_sound('Crystal.mp3')
                         else:
                             print("Ürün stokta değil!!")
                     elif store == "zara":
@@ -62,7 +68,7 @@ while True:
                         size_in_stock = check_stock(driver, sizes_to_check)
                         if size_in_stock:
                             print(f"ALERT: The {size_in_stock} size is in stock for the product at URL: {url}")
-                            playsound('Crystal.mp3')
+                            play_sound('Crystal.mp3')
                         else:
                             print(f"Checked {url} - no stock found for sizes {', '.join(sizes_to_check)}.")
                     else:
@@ -77,4 +83,3 @@ while True:
         sleep_time = random.randint(sleep_min_seconds, sleep_max_seconds)
         print(f"Sleeping for {sleep_time // 60} minutes and {sleep_time % 60} seconds...")
         time.sleep(sleep_time)
-
