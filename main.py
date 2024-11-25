@@ -8,23 +8,19 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import pygame
-from scraperHelpers import check_stock, rossmannStockCheck
+from scraperHelpers import check_stock, rossmannStockCheck, bershkaStockChecker
 
-# Load configuration from config.json
 with open("config.json", "r") as config_file:
     config = json.load(config_file)
 
-# Extract configuration values
 urls_to_check = config["urls"]
 sizes_to_check = config["sizes_to_check"]
 sleep_min_seconds = config["sleep_min_seconds"]
 sleep_max_seconds = config["sleep_max_seconds"]
 chrome_driver_path = config["chrome_driver_path"]
 
-# Initialize pygame mixer for playing sound
 pygame.mixer.init()
 
-# To only add to the cart once
 cart_status = {item["url"]: False for item in urls_to_check}
 
 def play_sound(sound_file):
@@ -32,13 +28,9 @@ def play_sound(sound_file):
     pygame.mixer.music.play()
 
 while True:
-    # Create a service object with the path to ChromeDriver from the config
+    # Crate service & initialize
     service = Service(executable_path=chrome_driver_path)
-
-    # Set Chrome options
     chrome_options = Options()
-
-    # Initialize the Chrome driver with the service and options
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
     try:
@@ -59,11 +51,6 @@ while True:
                         else:
                             print("Ürün stokta değil!!")
                     elif store == "zara":
-                        # Wait for the size selector list items to load
-                        print("Waiting for the size selector items to be present...")
-                        wait = WebDriverWait(driver, 40)
-                        wait.until(EC.presence_of_element_located((By.CLASS_NAME, "size-selector-list__item")))
-
                         # Check stock for the specified sizes
                         size_in_stock = check_stock(driver, sizes_to_check)
                         if size_in_stock:
@@ -71,6 +58,13 @@ while True:
                             play_sound('Crystal.mp3')
                         else:
                             print(f"Checked {url} - no stock found for sizes {', '.join(sizes_to_check)}.")
+                    elif store == "bershka":
+                        does_exist = bershkaStockChecker(driver, sizes_to_check)
+                        if does_exist:
+                            print("Allaaahhh varmış stokta koş koş koş!!!")
+                            play_sound('Crystal.mp3')
+                        else:
+                            print("Yok ablam yok :( )")
                     else:
                         print("URL not found")
             except Exception as e:
