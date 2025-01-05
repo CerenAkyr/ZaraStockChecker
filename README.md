@@ -16,3 +16,6 @@ Birden fazla ürün de ekleyebilirsiniz.
 ## Kod ve Kullanım
 Selenium, PySide6 kütüphaneleri kullanıldı.
 
+## Eski Sürüm
+Benim GUI ile işim yok ,eski kodu verin derseniz "old-script" branch'ine bakabilirsiniz.
+
