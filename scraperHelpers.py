@@ -8,6 +8,8 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import random
+import os
+import sys
 
 # Function to play sound when item is found!
 def play_sound(sound_file):
@@ -15,11 +17,21 @@ def play_sound(sound_file):
     pygame.mixer.music.load(sound_file)
     pygame.mixer.music.play()
 
+def get_resource_path(filename):
+    """Returns the correct path for bundled files when running as an exe."""
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, filename)
+    return filename
+
 
 # Stock-checking logic (old main)
 def stock_checker(shared_items, stock_check_event, ui):
     sleep_min_seconds = 120
     sleep_max_seconds = 240
+
+    crystal_mp3_path = get_resource_path("Crystal.mp3")
+    print("Crystal.mp3 Path:", crystal_mp3_path)
+
 
     while True:
         stock_check_event.wait()
@@ -52,7 +64,7 @@ def stock_checker(shared_items, stock_check_event, ui):
                             print(f"{size_in_stock} Beden stokta! Link: {url}")
                             message = f"{size_in_stock} Beden stokta! Link: {url}\n"
                             ui.update_status(message)
-                            play_sound('Crystal.mp3')
+                            play_sound(crystal_mp3_path)
                         else:
                             print("No stock found.")
                             message = f"{url} linkli {size} Beden ürün için stok bulunamadı.\n"
@@ -63,7 +75,7 @@ def stock_checker(shared_items, stock_check_event, ui):
                             print(f"{size_in_stock} Beden stokta! Link: {url}")
                             message = f"{size_in_stock} Beden stokta! Link: {url}\n"
                             ui.update_status(message)
-                            play_sound('Crystal.mp3')
+                            play_sound(crystal_mp3_path)
                         else:
                             print("No stock found.")
                             message = f"{url} linkli {size} Beden ürün için stok bulunamadı."
