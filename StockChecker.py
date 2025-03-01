@@ -37,5 +37,5 @@ if __name__ == "__main__":
 
     stock_check_thread = Thread(target=stock_checker, args=(shared_items, stock_check_event, search_display_app), daemon=True)
     stock_check_thread.start()
-
+    #app.setWindowIcon(QtGui.QIcon(os.path.join(basedir, 'hand.ico')))
     app.exec()
