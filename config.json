@@ -1,16 +1,11 @@
 {
     "urls": [
         {
-            "store": "rossmann",
-            "url": "https://www.rossmann.com.tr/isana-sac-bakim-kuru-argan-yagi-25-ml-p-sr17010004"
-        },
-        {
             "store": "zara",
-            "url": "https://www.zara.com/tr/tr/genis-yaka-blazer-p09083580.html?v1=399287227&v2=2419517"
+            "url": "https://www.zara.com/tr/tr/kolsuz-fitilli-t-shirt-p04174151.html?v1=463327147&v2=2420417"
         }
     ],
     "sizes_to_check": [ "S"],
     "sleep_min_seconds": 12,  
-    "sleep_max_seconds": 22,  
-    "chrome_driver_path": "../../DesktopHolder/chromedriver-win64/chromedriver.exe"
+    "sleep_max_seconds": 22
 }

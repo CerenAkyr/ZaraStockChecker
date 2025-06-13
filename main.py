@@ -8,6 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import pygame
+from webdriver_manager.chrome import ChromeDriverManager
 from scraperHelpers import check_stock, rossmannStockCheck, bershkaStockChecker
 
 with open("config.json", "r") as config_file:
@@ -17,7 +18,6 @@ urls_to_check = config["urls"]
 sizes_to_check = config["sizes_to_check"]
 sleep_min_seconds = config["sleep_min_seconds"]
 sleep_max_seconds = config["sleep_max_seconds"]
-chrome_driver_path = config["chrome_driver_path"]
 
 pygame.mixer.init()
 
@@ -29,9 +29,12 @@ def play_sound(sound_file):
 
 while True:
     # Crate service & initialize
-    service = Service(executable_path=chrome_driver_path)
     chrome_options = Options()
+    # Optional: run headless
+    # chrome_options.add_argument("--headless")
+    service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=chrome_options)
+
 
     try:
         for item in urls_to_check:
