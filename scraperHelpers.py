@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 import pygame
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -11,91 +12,7 @@ import random
 import os
 import sys
 
-# Function to play sound when item is found!
-def play_sound(sound_file):
-    pygame.mixer.init()
-    pygame.mixer.music.load(sound_file)
-    pygame.mixer.music.play()
-
-def get_resource_path(filename):
-    """Returns the correct path for bundled files when running as an exe."""
-    if hasattr(sys, '_MEIPASS'):
-        return os.path.join(sys._MEIPASS, filename)
-    return filename
-
-
-# Stock-checking logic (old main)
-def stock_checker(shared_items, stock_check_event, ui):
-    sleep_min_seconds = 120
-    sleep_max_seconds = 240
-
-    crystal_mp3_path = get_resource_path("Crystal.mp3")
-    print("Crystal.mp3 Path:", crystal_mp3_path)
-
-
-    while True:
-        stock_check_event.wait()
-
-        service = Service(ChromeDriverManager().install())
-        chrome_options = Options()
-        chrome_options.add_argument("--headless=new")
-        chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.add_argument("--window-size=1920,1080")
-        chrome_options.add_argument("--start-maximized")
-        chrome_options.add_argument(
-    "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
-)
-        driver = webdriver.Chrome(service=service, options=chrome_options)
-
-        try:
-            for item in shared_items:
-                try:
-                    url = item.get("link")
-                    store = item.get("brand")
-                    size = item.get("size")
-                    driver.get(url)
-                    print(f"Checking stock for URL: {url}")
-                    if store.lower() == "zara":
-                        size_in_stock = check_stock_zara(driver, [size])
-                        if size_in_stock:
-                            print(f"{size_in_stock} Beden stokta! Link: {url}")
-                            message = f"{size_in_stock} Beden stokta! Link: {url}\n"
-                            ui.update_status(message)
-                            play_sound(crystal_mp3_path)
-                        else:
-                            print("No stock found.")
-                            message = f"{url} linkli {size} Beden ürün için stok bulunamadı.\n"
-                            ui.update_status(message)
-                    elif store.lower() == "bershka":
-                        size_in_stock = check_stock_bershka(driver, [size])
-                        if size_in_stock:
-                            print(f"{size_in_stock} Beden stokta! Link: {url}")
-                            message = f"{size_in_stock} Beden stokta! Link: {url}\n"
-                            ui.update_status(message)
-                            play_sound(crystal_mp3_path)
-                        else:
-                            print("No stock found.")
-                            message = f"{url} linkli {size} Beden ürün için stok bulunamadı."
-                            ui.update_status(message)
-                    else:
-                        print(f"Unsupported store: {store}")
-                except Exception as e:
-                    print(f"Error checking {url}: {e}")
-        finally:
-            driver.quit()
-            sleep_time = random.randint(sleep_min_seconds, sleep_max_seconds)
-            print(f"Sleeping for {sleep_time // 60} minutes and {sleep_time % 60} seconds...")
-            time.sleep(sleep_time)
-
 # Function to check stock availability (For ZARA)
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, ElementClickInterceptedException, NoSuchElementException
-
 def check_stock_zara(driver, sizes_to_check):
     try:
         wait = WebDriverWait(driver, 60)

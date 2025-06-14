@@ -1,0 +1,11 @@
+{
+    "urls": [
+        {
+            "store": "zara",
+            "url": "https://www.zara.com/tr/tr/godeli-halter-yaka-kisa-elbise-p02858777.html?v1=459502627&v2=2420896"
+        }
+    ],
+    "sizes_to_check": [ "XS"],
+    "sleep_min_seconds": 12,  
+    "sleep_max_seconds": 22
+}
