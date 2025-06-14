@@ -1,21 +1,44 @@
-# Zara Stock Checker with GUI
-Zara Stock Checker for Girlies with desktop application
+# 🛍️ Zara Stock Checker Bot for Girlies (Telegram Mesajı + Bildirim Sesi)
+
+Bu Python kodu ürünlerin stoklarını kontrol edip istediğiniz beden stoğa gelince size telegram mesajı ve bildirim sesi yollar.
+
+---
+
+## Özellikler
+
+- Headless Selenium Chrome scraping
+- Telegram alerting (optional)
+- Sound notifications using `pygame`
+- Configurable URL list, sizes, and sleep delay
+- Foolproof `.env` handling
+
+---
+
+## Gereklilikler
+
+- Python 3.8+
+- Google Chrome
+
+---
 
 ## Nasıl Kullanılır?
 
-<img width="443" alt="image" src="https://github.com/user-attachments/assets/bc759fa2-414d-4c23-b09b-cd435a54e2f9" />
+### 1. Repository'i klonlayın veya zip olarak indirin
 
-Arayüzün sol kısmına aramak istediğiniz ürün için link, marka ve beden seçtikten sonra "Ürünü Ekle" butonuna tıklayın.
-Birden fazla ürün de ekleyebilirsiniz.
+### 2. Gerekli paketleri indirin
+`pip install -r requirements.txt` terminale yazarak indirebilirsiniz
 
-<img width="523" alt="image" src="https://github.com/user-attachments/assets/f175c834-2abd-4f07-ad63-7fba1c6d28ac" />
+### 3. Config dosyasına istediğiniz linkleri kurun
+<pre> ```json { "urls": [ { "store": "zara", "url": "https://www.zara.com/tr/tr/godeli-halter-yaka-kisa-elbise-p02858777.html?v1=459502627&v2=2420896" }, { "store": "zara", "url": "https://www.zara.com/tr/tr/godeli-halter-yaka-kisa-elbise-p02858777.html?v1=459502627&v2=2420896" } ], "sizes_to_check": ["XS"], "sleep_min_seconds": 12, "sleep_max_seconds": 22 } ``` </pre>
+url kısmına istediğiniz linki, sizes_to_check kısmına istediğiniz bedenleri yazabilirsiniz. İstediğiniz kadar store ve url ekleyebilirsiniz. 
 
-Ürünlerin hepsini ekledikten sonra "Arama Başlat" butonuna tıklayın.
-Ürünleri arkaplanda armaaya başlayacaktır. Eğer ürün bulursa size bildirim sesi de yollayacak.
+## 4. Botu çalıştırın!
+`python main.py` yazmanız yeterli
 
-## Kod ve Kullanım
-Selenium, PySide6 kütüphaneleri kullanıldı.
+## 5. Opsiyonel: Telegram Mesaj Botu Kurulumu
++ Telegram'a girin -> BotFather'ı seçip /newbot komutunu kullanın.
++ Botunuza isim verin. İsim verdikten sonra HTTP API ve chat id'nizi size yollayacak.
++ .env isimli bir dosya kurun ve bu iki variable'ı şu formatta yazın:
+<pre> ```env BOT_API=your_telegram_bot_api_key CHAT_ID=your_chat_id ``` </pre>
 
-## Eski Sürüm
-Benim GUI ile işim yok ,eski kodu verin derseniz "old-script" branch'ine bakabilirsiniz.
-
++ İşte bu kadar ^_^

@@ -9,7 +9,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from dotenv import load_dotenv
 import os
 import requests
-from scraperHelpers import check_stock_zara, rossmannStockCheck, bershkaStockChecker
+from scraperHelpers import check_stock_zara
 
 with open("config.json", "r") as config_file:
     config = json.load(config_file)
@@ -61,7 +61,15 @@ def send_telegram_message(message):
 while True:
     # Crate service & initialize
     chrome_options = Options()
-    # chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless=new")  # modern headless mode
+    chrome_options.add_argument("--window-size=1920,1080")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument(
+        "--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    )
+
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
@@ -77,12 +85,7 @@ while True:
                     driver.get(url)
                     print("--------------------------------")
                     print(f"Url {url} için: ")
-                    if store == "rossmann":
-                        if rossmannStockCheck(driver):
-                            play_sound('Crystal.mp3')
-                        else:
-                            print("Ürün stokta değil!!")
-                    elif store == "zara":
+                    if store == "zara":
                         # Check stock for the specified sizes
                         size_in_stock = check_stock_zara(driver, sizes_to_check)
                         if size_in_stock:
@@ -92,13 +95,6 @@ while True:
                             send_telegram_message(message)
                         else:
                             print(f"Checked {url} - no stock found for sizes {', '.join(sizes_to_check)}.")
-                    elif store == "bershka":
-                        does_exist = bershkaStockChecker(driver, sizes_to_check)
-                        if does_exist:
-                            print("Allaaahhh varmış stokta koş koş koş!!!")
-                            play_sound('Crystal.mp3')
-                        else:
-                            print("Yok ablam yok :( )")
                     else:
                         print("URL not found")
             except Exception as e:
