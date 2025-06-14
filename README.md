@@ -29,7 +29,23 @@ Bu Python kodu ürünlerin stoklarını kontrol edip istediğiniz beden stoğa g
 `pip install -r requirements.txt` terminale yazarak indirebilirsiniz
 
 ### 3. Config dosyasına istediğiniz linkleri kurun
-<pre> ```json { "urls": [ { "store": "zara", "url": "https://www.zara.com/tr/tr/godeli-halter-yaka-kisa-elbise-p02858777.html?v1=459502627&v2=2420896" }, { "store": "zara", "url": "https://www.zara.com/tr/tr/godeli-halter-yaka-kisa-elbise-p02858777.html?v1=459502627&v2=2420896" } ], "sizes_to_check": ["XS"], "sleep_min_seconds": 12, "sleep_max_seconds": 22 } ``` </pre>
+ ```json
+{
+    "urls": [
+        {
+            "store": "zara",
+            "url": "https://www.zara.com/tr/tr/godeli-halter-yaka-kisa-elbise-p02858777.html?v1=459502627&v2=2420896"
+        },
+        {
+            "store": "zara",
+            "url": "https://www.zara.com/tr/tr/godeli-halter-yaka-kisa-elbise-p02858777.html?v1=459502627&v2=2420896"
+        }
+    ],
+    "sizes_to_check": [ "XS"],
+    "sleep_min_seconds": 12,  
+    "sleep_max_seconds": 22
+}
+```
 url kısmına istediğiniz linki, sizes_to_check kısmına istediğiniz bedenleri yazabilirsiniz. İstediğiniz kadar store ve url ekleyebilirsiniz. 
 
 ## 4. Botu çalıştırın!
@@ -39,6 +55,9 @@ url kısmına istediğiniz linki, sizes_to_check kısmına istediğiniz bedenler
 + Telegram'a girin -> BotFather'ı seçip /newbot komutunu kullanın.
 + Botunuza isim verin. İsim verdikten sonra HTTP API ve chat id'nizi size yollayacak.
 + .env isimli bir dosya kurun ve bu iki variable'ı şu formatta yazın:
-<pre> ```env BOT_API=your_telegram_bot_api_key CHAT_ID=your_chat_id ``` </pre>
+```env
+BOT_API=your_telegram_bot_api_key
+CHAT_ID=your_chat_id
+``` 
 
 + İşte bu kadar ^_^
