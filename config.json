@@ -2,10 +2,10 @@
     "urls": [
         {
             "store": "zara",
-            "url": "https://www.zara.com/tr/tr/kolsuz-fitilli-t-shirt-p04174151.html?v1=463327147&v2=2420417"
+            "url": "https://www.zara.com/tr/tr/godeli-halter-yaka-kisa-elbise-p02858777.html?v1=459502627&v2=2420896"
         }
     ],
-    "sizes_to_check": [ "S"],
+    "sizes_to_check": [ "XS"],
     "sleep_min_seconds": 12,  
     "sleep_max_seconds": 22
 }

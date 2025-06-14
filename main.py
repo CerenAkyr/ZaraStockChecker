@@ -23,37 +23,47 @@ pygame.mixer.init()
 
 cart_status = {item["url"]: False for item in urls_to_check}
 
-# This part is for bot messages:
+# Bot message fetch variables:
 load_dotenv()
 BOT_API = os.getenv("BOT_API")
 CHAT_ID = os.getenv("CHAT_ID")
 
+# Foolproof for not having .env and bot installed: 
+if not BOT_API or not CHAT_ID:
+    print("BOT_API or CHAT_ID not found in .env file. Telegram messages will be disabled.")
+    TELEGRAM_ENABLED = False
+else:
+    TELEGRAM_ENABLED = True
+
+# This fcn is for notification sound
 def play_sound(sound_file):
     pygame.mixer.music.load(sound_file)
     pygame.mixer.music.play()
 
+# This fcn is for sending messages
 def send_telegram_message(message):
+    if not TELEGRAM_ENABLED:
+        print("⚠️ Telegram message skipped (missing BOT_API or CHAT_ID).")
+        return
+
     url = f"https://api.telegram.org/bot{BOT_API}/sendMessage"
     payload = {
         "chat_id": CHAT_ID,
         "text": message
     }
     try:
-        response = requests.post(url, data=payload)
+        response = requests.post(url, data=payload, timeout=10)
         response.raise_for_status()
         print("Telegram message sent.")
     except requests.exceptions.RequestException as e:
         print(f"Failed to send Telegram message: {e}")
 
-
 while True:
     # Crate service & initialize
     chrome_options = Options()
-    # Optional: run headless
     # chrome_options.add_argument("--headless")
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=chrome_options)
-
 
     try:
         for item in urls_to_check:
