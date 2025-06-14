@@ -105,6 +105,7 @@ def rossmannStockCheck(driver):
         print(f"Yok yok bu ürün anla yok kalmamış")
     return False
 
+'''
 # Function to check stock availability (For Bershka)
 def check_stock_bershka(driver, sizes_to_check):
     try:
@@ -158,3 +159,4 @@ def watsonsChecker(driver):
         return not ("0 ürün") in text
     except:
         return False
+'''
