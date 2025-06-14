@@ -4,12 +4,12 @@ import random
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
 import pygame
 from webdriver_manager.chrome import ChromeDriverManager
-from scraperHelpers import check_stock, rossmannStockCheck, bershkaStockChecker
+from dotenv import load_dotenv
+import os
+import requests
+from scraperHelpers import check_stock_zara, rossmannStockCheck, bershkaStockChecker
 
 with open("config.json", "r") as config_file:
     config = json.load(config_file)
@@ -23,9 +23,28 @@ pygame.mixer.init()
 
 cart_status = {item["url"]: False for item in urls_to_check}
 
+# This part is for bot messages:
+load_dotenv()
+BOT_API = os.getenv("BOT_API")
+CHAT_ID = os.getenv("CHAT_ID")
+
 def play_sound(sound_file):
     pygame.mixer.music.load(sound_file)
     pygame.mixer.music.play()
+
+def send_telegram_message(message):
+    url = f"https://api.telegram.org/bot{BOT_API}/sendMessage"
+    payload = {
+        "chat_id": CHAT_ID,
+        "text": message
+    }
+    try:
+        response = requests.post(url, data=payload)
+        response.raise_for_status()
+        print("Telegram message sent.")
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to send Telegram message: {e}")
+
 
 while True:
     # Crate service & initialize
@@ -55,10 +74,12 @@ while True:
                             print("Ürün stokta değil!!")
                     elif store == "zara":
                         # Check stock for the specified sizes
-                        size_in_stock = check_stock(driver, sizes_to_check)
+                        size_in_stock = check_stock_zara(driver, sizes_to_check)
                         if size_in_stock:
-                            print(f"ALERT: The {size_in_stock} size is in stock for the product at URL: {url}")
+                            message = f"🛍️{size_in_stock} beden stokta!!!!\nLink: {url}"
+                            print(f"ALERT: {message}")
                             play_sound('Crystal.mp3')
+                            send_telegram_message(message)
                         else:
                             print(f"Checked {url} - no stock found for sizes {', '.join(sizes_to_check)}.")
                     elif store == "bershka":
