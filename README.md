@@ -61,3 +61,6 @@ CHAT_ID=your_chat_id
 ``` 
 
 + İşte bu kadar ^_^
+
+## Disclaimer!
+Bu repository sadece eğitim ve eğlence amaçlı yapılmıştır. Asla ama asla herhangi bir kar amacı gütme amacı yoktur!
