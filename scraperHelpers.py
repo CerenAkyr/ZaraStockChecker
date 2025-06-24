@@ -105,51 +105,61 @@ def rossmannStockCheck(driver):
         print(f"Yok yok bu ürün anla yok kalmamış")
     return False
 
-'''
-# Function to check stock availability (For Bershka)
+
 def check_stock_bershka(driver, sizes_to_check):
     try:
-        # Close the cookie alert if it appears
+        wait = WebDriverWait(driver, 10)
+
+        # Handle cookie popup if present
         try:
             print("Checking for cookie alert...")
-            wait = WebDriverWait(driver, 10)  # Wait up to 10 seconds for the alert
             accept_cookies_button = wait.until(EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler")))
             accept_cookies_button.click()
-            print("Cookie alert closed successfully.")
-        except Exception as e:
-            print("Cookie alert not found or failed to close: ", e)
-        
-        # Proceed with the stock check
-        print("Waiting for the size buttons to appear...")
-        wait = WebDriverWait(driver, 40)
-        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "button[data-qa-anchor='sizeListItem']")))
+            print("Cookie alert closed.")
+        except Exception:
+            print("No cookie alert or already closed.")
 
-        # Find the size buttons
-        size_elements = driver.find_elements(By.CSS_SELECTOR, "button[data-qa-anchor='sizeListItem']")
+        # Wait for the size list to load
+        print("Waiting for the size list...")
+        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "ul[data-qa-anchor='productDetailSize']")))
+
+        # Allow extra time for dynamic class updates to finish
+        time.sleep(3)  # Give JS time to update classes (can be adjusted or replaced by smarter wait below)
+
+        size_buttons = driver.find_elements(By.CSS_SELECTOR, "button[data-qa-anchor='sizeListItem']")
         sizes_found = {size: False for size in sizes_to_check}
 
-        for button in size_elements:
+        for button in size_buttons:
             try:
-                # Look for the size label within each button
-                size_label = button.find_element(By.CSS_SELECTOR, "span.text__label").text.strip()
+                size_label_elem = button.find_element(By.CSS_SELECTOR, "span.text__label")
+                size_label = size_label_elem.text.strip()
+
                 if size_label in sizes_to_check:
                     sizes_found[size_label] = True
-                    if button.get_attribute("aria-checked") == "false":
-                        print(f"The {size_label} size button is disabled (out of stock).")
-                    else:
-                        print(f"The {size_label} size button is enabled (in stock).")
-                        return size_label  # Return the size if found in stock
-            except Exception as e:
-                print(f"Error processing size element: {e}")
-                continue
-        
-        if not any(sizes_found.values()):
-            print(f"Sizes {', '.join(sizes_to_check)} not found.")
-    except Exception as e:
-        print(f"An error occurred during the operation: {e}")
-    
-    return None
 
+                    # Wait for the class to include 'is-disabled' or not
+                    def class_stabilized(driver):
+                        cls = button.get_attribute("class")
+                        return "is-disabled" in cls or "is-disabled" not in cls
+
+                    WebDriverWait(driver, 5).until(class_stabilized)
+
+                    class_attr = button.get_attribute("class")
+                    if "is-disabled" in class_attr:
+                        print(f"{size_label} is out of stock.")
+                    else:
+                        print(f"{size_label} is in stock!")
+                        return size_label
+            except Exception as e:
+                print(f"Error processing size button: {e}")
+                continue
+
+        if not any(sizes_found.values()):
+            print(f"⚠️ Sizes {', '.join(sizes_to_check)} not found.")
+    except Exception as e:
+        print(f"An error occurred while checking Bershka stock: {e}")
+
+    return None
     
 def watsonsChecker(driver):
     wait = WebDriverWait(driver, 40)
@@ -159,4 +169,3 @@ def watsonsChecker(driver):
         return not ("0 ürün") in text
     except:
         return False
-'''

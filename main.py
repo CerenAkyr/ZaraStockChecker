@@ -9,7 +9,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from dotenv import load_dotenv
 import os
 import requests
-from scraperHelpers import check_stock_zara
+from scraperHelpers import check_stock_zara, check_stock_bershka
 
 with open("config.json", "r") as config_file:
     config = json.load(config_file)
@@ -88,6 +88,15 @@ while True:
                     if store == "zara":
                         # Check stock for the specified sizes
                         size_in_stock = check_stock_zara(driver, sizes_to_check)
+                        if size_in_stock:
+                            message = f"🛍️{size_in_stock} beden stokta!!!!\nLink: {url}"
+                            print(f"ALERT: {message}")
+                            play_sound('Crystal.mp3')
+                            send_telegram_message(message)
+                        else:
+                            print(f"Checked {url} - no stock found for sizes {', '.join(sizes_to_check)}.")
+                    elif store == "bershka":
+                        size_in_stock = check_stock_bershka(driver, sizes_to_check)
                         if size_in_stock:
                             message = f"🛍️{size_in_stock} beden stokta!!!!\nLink: {url}"
                             print(f"ALERT: {message}")
