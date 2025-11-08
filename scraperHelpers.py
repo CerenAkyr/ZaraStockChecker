@@ -169,3 +169,130 @@ def watsonsChecker(driver):
         return not ("0 ürün") in text
     except:
         return False
+
+
+# Function to check stock availability for Mango
+def check_stock_mango(driver, sizes_to_check):
+    try:
+        wait = WebDriverWait(driver, 15)
+
+        # Best-effort cookie accept
+        try:
+            print("Checking for cookie alert...")
+            accept = wait.until(EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler")))
+            accept.click()
+            print("Cookie alert closed.")
+        except Exception:
+            print("No cookie alert or already closed.")
+
+        # Wait for either size selector or actions to be present
+        try:
+            wait.until(
+                EC.any_of(
+                    EC.presence_of_element_located((By.ID, "pdp-size-selector")),
+                    EC.presence_of_element_located((By.ID, "pdp-primary-actions"))
+                )
+            )
+        except TimeoutException:
+            print("Mango PDP did not expose size selector or actions in time.")
+            return None
+
+        # Collect potential size items (buttons or <p> for no-size/standard)
+        size_selectors = [
+            "button[id^='pdp.productInfo.sizeSelector.size']",
+            "p[id^='pdp.productInfo.sizeSelector.size']",
+        ]
+        size_elements = []
+        for sel in size_selectors:
+            size_elements.extend(driver.find_elements(By.CSS_SELECTOR, sel))
+
+        # Helper to extract label text from a size element
+        def extract_label(el):
+            try:
+                label_el = el.find_element(By.CSS_SELECTOR, "span.textActionM_className__8McJk")
+                label = label_el.text.strip()
+                # Map Standard/no-size to config keyword when appropriate
+                if label.lower() in ["standart", "standard"]:
+                    return "bedensiz"
+                return label
+            except Exception:
+                # Fallback to element text
+                text = el.text.strip()
+                if text.lower() in ["standart", "standard"]:
+                    return "bedensiz"
+                return text
+
+        # If we have size elements, try to match against sizes_to_check
+        if size_elements:
+            sizes_found = {size: False for size in sizes_to_check}
+
+            for el in size_elements:
+                try:
+                    label = extract_label(el)
+
+                    if label in sizes_to_check:
+                        sizes_found[label] = True
+
+                        el_id = el.get_attribute("id") or ""
+                        aria_disabled = el.get_attribute("aria-disabled")
+                        is_disabled_attr = (el.get_attribute("disabled") is not None)
+
+                        # Availability signals: id contains 'sizeAvailable' and element not disabled
+                        available_by_id = "sizeAvailable" in el_id and "sizeUnavailable" not in el_id
+                        enabled_state = not (aria_disabled == "true" or is_disabled_attr)
+
+                        if available_by_id and enabled_state:
+                            print(f"{label} is in stock!")
+                            return label
+                        else:
+                            print(f"{label} is out of stock.")
+                            # Keep checking others; if none available, we will return False
+                except Exception as e:
+                    print(f"Error processing Mango size element: {e}")
+                    continue
+
+            if not any(sizes_found.values()):
+                print(f"Sizes {', '.join(sizes_to_check)} not found on Mango PDP.")
+                return None
+
+            # At least one requested size was present but not available
+            return False
+
+        # No explicit size elements: treat as no-size product
+        if "bedensiz" in sizes_to_check:
+            try:
+                # Determine if 'Add to bag' is enabled
+                # Prefer the primary actions container first
+                actions = driver.find_element(By.ID, "pdp-primary-actions")
+                add_buttons = actions.find_elements(By.CSS_SELECTOR, "button.ButtonPrimary_default__2Mbr8, button[aria-disabled]")
+                # Fallback: any button with text content indicative of add
+                if not add_buttons:
+                    add_buttons = actions.find_elements(By.TAG_NAME, "button")
+
+                add_enabled = False
+                for btn in add_buttons:
+                    try:
+                        label = (btn.text or "").strip().lower()
+                        aria_disabled = btn.get_attribute("aria-disabled")
+                        if ("ekle" in label or label == "" or "add" in label) and aria_disabled != "true":
+                            add_enabled = True
+                            break
+                    except Exception:
+                        continue
+
+                if add_enabled:
+                    print("No size selector; 'Add to bag' enabled -> bedensiz in stock!")
+                    return "bedensiz"
+                else:
+                    print("No size selector; 'Add to bag' disabled -> out of stock for bedensiz.")
+                    return False
+            except Exception as e:
+                print(f"Mango no-size flow check failed: {e}")
+                return None
+
+        # No size elements and 'bedensiz' not requested -> not applicable
+        print("No sizes found and 'bedensiz' not requested in config.")
+        return None
+    except Exception as e:
+        print(f"An error occurred while checking Mango stock: {e}")
+        return None

@@ -9,7 +9,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from dotenv import load_dotenv
 import os
 import requests
-from scraperHelpers import check_stock_zara, check_stock_bershka
+from scraperHelpers import check_stock_zara, check_stock_bershka, check_stock_mango
 
 with open("config.json", "r") as config_file:
     config = json.load(config_file)
@@ -23,7 +23,7 @@ pygame.mixer.init()
 
 cart_status = {item["url"]: False for item in urls_to_check}
 
-# Bot message fetch variables:
+# Variable fetching for bot msg:
 load_dotenv()
 BOT_API = os.getenv("BOT_API")
 CHAT_ID = os.getenv("CHAT_ID")
@@ -43,7 +43,7 @@ def play_sound(sound_file):
 # This fcn is for sending messages
 def send_telegram_message(message):
     if not TELEGRAM_ENABLED:
-        print("⚠️ Telegram message skipped (missing BOT_API or CHAT_ID).")
+        print("Telegram message skipped (missing BOT_API or CHAT_ID).")
         return
 
     url = f"https://api.telegram.org/bot{BOT_API}/sendMessage"
@@ -90,26 +90,35 @@ while True:
                         size_in_stock = check_stock_zara(driver, sizes_to_check)
                         if size_in_stock:
                             message = f"🛍️{size_in_stock} beden stokta!!!!\nLink: {url}"
-                            print(f"ALERT: {message}")
+                            print(f"UYARI: {message}")
                             play_sound('Crystal.mp3')
                             send_telegram_message(message)
                         else:
-                            print(f"Checked {url} - no stock found for sizes {', '.join(sizes_to_check)}.")
+                            print(f"{url} kontrol edildi - stok bulunamadı.")
                     elif store == "bershka":
                         size_in_stock = check_stock_bershka(driver, sizes_to_check)
                         if size_in_stock:
                             message = f"🛍️{size_in_stock} beden stokta!!!!\nLink: {url}"
-                            print(f"ALERT: {message}")
+                            print(f"UYARI: {message}")
                             play_sound('Crystal.mp3')
                             send_telegram_message(message)
                         else:
-                            print(f"Checked {url} - no stock found for sizes {', '.join(sizes_to_check)}.")
+                            print(f"{url} kontrol edildi - stok bulunamadı.")
+                    elif store == "mango":
+                        size_in_stock = check_stock_mango(driver, sizes_to_check)
+                        if size_in_stock:
+                            message = f"🛍️{size_in_stock} beden stokta!!!!\nLink: {url}"
+                            print(f"UYARI: {message}")
+                            play_sound('Crystal.mp3')
+                            send_telegram_message(message)
+                        else:
+                            print(f"{url} kontrol edildi - stok bulunamadı.")
                     else:
-                        print("URL not found")
+                        print("URL bulunamadı")
             except Exception as e:
-                print(f"An error occurred with URL {url}: {e}")
+                print(f"URL {url} ile bir hata oluştu: {e}")
     finally:
-        print("Closing the browser...")
+        print("Browser kapanıyor...")
         driver.quit()
 
         # Sleep for a random time between the specified min and max seconds before the next check
