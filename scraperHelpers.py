@@ -50,6 +50,7 @@ def check_stock_zara(driver, sizes_to_check):
         # Find size elements
         size_elements = driver.find_elements(By.CLASS_NAME, "size-selector-sizes-size")
         sizes_found = {size: False for size in sizes_to_check}
+        any_in_stock = None
 
         for li in size_elements:
             try:
@@ -63,7 +64,8 @@ def check_stock_zara(driver, sizes_to_check):
                         similar_products_text = button.find_element(By.CLASS_NAME, "size-selector-sizes-size__action").text.strip()
                         if "Benzer ürünler" in similar_products_text:
                             print(f"The {size_label} size is out of stock and showing similar products.")
-                            return False
+                            any_in_stock = False if any_in_stock is None else any_in_stock
+                            continue
                     except NoSuchElementException:
                         pass  # No "Benzer ürünler" text found, proceed with normal check
 
@@ -73,13 +75,19 @@ def check_stock_zara(driver, sizes_to_check):
                         return size_label
                     else:
                         print(f"The {size_label} size is out of stock.")
-                        return False
+                        any_in_stock = False if any_in_stock is None else any_in_stock
+                        continue
             except Exception as e:
                 print(f"Error processing size element: {e}")
                 continue
 
         if not any(sizes_found.values()):
             print(f"Sizes {', '.join(sizes_to_check)} not found.")
+            return None
+
+        # At least one requested size was present but none were in stock
+        if any_in_stock is False:
+            return False
     except Exception as e:
         print(f"An error occurred during the operation: {e}")
 
@@ -119,15 +127,20 @@ def check_stock_bershka(driver, sizes_to_check):
         except Exception:
             print("No cookie alert or already closed.")
 
-        # Wait for the size list to load
+        # Wait for the size list to load (dot list or legacy list)
         print("Waiting for the size list...")
-        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "ul[data-qa-anchor='productDetailSize']")))
+        wait.until(
+            EC.presence_of_element_located(
+                (By.CSS_SELECTOR, "[data-qa-anchor='productDetailSize']")
+            )
+        )
 
         # Allow extra time for dynamic class updates to finish
-        time.sleep(3)  # Give JS time to update classes (can be adjusted or replaced by smarter wait below)
+        time.sleep(10)
 
         size_buttons = driver.find_elements(By.CSS_SELECTOR, "button[data-qa-anchor='sizeListItem']")
         sizes_found = {size: False for size in sizes_to_check}
+        any_in_stock = None
 
         for button in size_buttons:
             try:
@@ -137,16 +150,14 @@ def check_stock_bershka(driver, sizes_to_check):
                 if size_label in sizes_to_check:
                     sizes_found[size_label] = True
 
-                    # Wait for the class to include 'is-disabled' or not
-                    def class_stabilized(driver):
-                        cls = button.get_attribute("class")
-                        return "is-disabled" in cls or "is-disabled" not in cls
+                    class_attr = button.get_attribute("class") or ""
+                    aria_disabled = button.get_attribute("aria-disabled") == "true"
+                    is_disabled_attr = button.get_attribute("disabled") is not None
+                    is_disabled = "is-disabled" in class_attr or aria_disabled or is_disabled_attr
 
-                    WebDriverWait(driver, 5).until(class_stabilized)
-
-                    class_attr = button.get_attribute("class")
-                    if "is-disabled" in class_attr:
+                    if is_disabled:
                         print(f"{size_label} is out of stock.")
+                        any_in_stock = False if any_in_stock is None else any_in_stock
                     else:
                         print(f"{size_label} is in stock!")
                         return size_label
@@ -156,6 +167,9 @@ def check_stock_bershka(driver, sizes_to_check):
 
         if not any(sizes_found.values()):
             print(f"⚠️ Sizes {', '.join(sizes_to_check)} not found.")
+            return None
+        if any_in_stock is False:
+            return False
     except Exception as e:
         print(f"An error occurred while checking Bershka stock: {e}")
 
