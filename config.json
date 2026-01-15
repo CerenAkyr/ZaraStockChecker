@@ -1,19 +1,22 @@
 {
     "urls": [
         {
-            "store": "mango",
-            "url": "https://shop.mango.com/tr/tr/p/kadin/yelekler/triko/mucevher-dugmeli-triko-yelek_17094447" 
-        },
-                {
-            "store": "bershka",
-            "url": "https://www.bershka.com/tr/keten-halter-mini-elbise-c0p181385566.html?colorId=700"
+            "store": "zara",
+            "url": "https://www.zara.com/tr/tr/arkasi-acik-deri-ayakkabi-p11264610.html?v1=507260118&v2=2440352", 
+            "sizes": ["39","40"]   
         },
         {
             "store": "zara",
-            "url": "https://www.zara.com/tr/tr/godeli-halter-yaka-kisa-elbise-p02858777.html?v1=459502627&v2=2420896"
+            "url": "https://www.zara.com/tr/tr/bagcikli-buzgulu-top-p01937304.html?v1=457778711&v2=2440352", 
+            "sizes": ["S"]    
+        },
+        {
+            "store": "bershka",
+            "url": "https://www.bershka.com/tr/baggy-fit-balon-kesim-jean-c0p193757596.html?colorId=426",
+            "sizes": ["36", "34"]
         }
     ],
-    "sizes_to_check": ["36", "XS"],
-    "sleep_min_seconds": 500,  
+    "sizes_to_check": ["S"], 
+    "sleep_min_seconds": 500,
     "sleep_max_seconds": 800
 }

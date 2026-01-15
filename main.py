@@ -82,12 +82,22 @@ while True:
                 else:
                     url = item.get("url")
                     store = item.get("store")
+                    
+                    # --- CHANGE START ---
+                    # Determine which sizes to check for THIS specific item.
+                    # If the item has a "sizes" list in config, use that.
+                    # Otherwise, fallback to the global "sizes_to_check" list.
+                    current_sizes = item.get("sizes", sizes_to_check)
+                    # --- CHANGE END ---
+
                     driver.get(url)
                     print("--------------------------------")
                     print(f"Url {url} için: ")
+                    print(f"Checking for sizes: {current_sizes}") # Helpful log to see which sizes are being checked
+
                     if store == "zara":
-                        # Check stock for the specified sizes
-                        size_in_stock = check_stock_zara(driver, sizes_to_check)
+                        # Check stock for the specific sizes (current_sizes)
+                        size_in_stock = check_stock_zara(driver, current_sizes)
                         if size_in_stock:
                             message = f"🛍️{size_in_stock} beden stokta!!!!\nLink: {url}"
                             print(f"UYARI: {message}")
@@ -96,7 +106,7 @@ while True:
                         else:
                             print(f"{url} kontrol edildi - stok bulunamadı.")
                     elif store == "bershka":
-                        size_in_stock = check_stock_bershka(driver, sizes_to_check)
+                        size_in_stock = check_stock_bershka(driver, current_sizes)
                         if size_in_stock:
                             message = f"🛍️{size_in_stock} beden stokta!!!!\nLink: {url}"
                             print(f"UYARI: {message}")
@@ -105,7 +115,7 @@ while True:
                         else:
                             print(f"{url} kontrol edildi - stok bulunamadı.")
                     elif store == "mango":
-                        size_in_stock = check_stock_mango(driver, sizes_to_check)
+                        size_in_stock = check_stock_mango(driver, current_sizes)
                         if size_in_stock:
                             message = f"🛍️{size_in_stock} beden stokta!!!!\nLink: {url}"
                             print(f"UYARI: {message}")
