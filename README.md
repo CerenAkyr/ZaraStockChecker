@@ -51,6 +51,10 @@ url kısmına istediğiniz linki, sizes_to_check kısmına istediğiniz bedenler
 ## 4. Botu çalıştırın!
 `python main.py` yazmanız yeterli
 
+## GUI
+Basit bir arayüz ile çalıştırmak için:
+`python gui.py`
+
 ## 5. Opsiyonel: Telegram Mesaj Botu Kurulumu
 + Telegram'a girin -> BotFather'ı seçip /newbot komutunu kullanın.
 + Botunuza isim verin. İsim verdikten sonra HTTP API ve chat id'nizi size yollayacak.
