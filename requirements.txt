@@ -1,5 +1,5 @@
 selenium==4.11.2
-pygame
-webdriver-manager
-python-dotenv
-requests
+pygame==2.6.1
+webdriver-manager==4.0.2
+python-dotenv==0.21.0
+requests==2.32.3

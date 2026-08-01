@@ -30,7 +30,7 @@ class ZaraStockCheckerApp(tk.Tk):
         self._worker_thread = None
         self._brands = ["mango", "bershka", "zara"]
         self._items = []
-        self._sizes = ["XS", "S", "M", "L", "XL"]
+        self._sizes = ["-", "XS", "S", "M", "L", "XL", "36", "37", "38", "39", "40"]
         self._sleep_min_seconds = 12
         self._sleep_max_seconds = 22
         self._sleep_min_var = tk.IntVar(value=self._sleep_min_seconds)
@@ -229,7 +229,7 @@ class ZaraStockCheckerApp(tk.Tk):
         self._brand_combo.grid(row=2, column=0, padx=(0, 16), pady=(4, 12), sticky="w")
 
         ttk.Label(item_section, text="Size", style="Card.TLabel").grid(row=1, column=1, sticky="w")
-        self._size_var = tk.StringVar()
+        self._size_var = tk.StringVar(value=self._sizes[0])
         self._size_combo = ttk.Combobox(
             item_section,
             textvariable=self._size_var,
@@ -425,9 +425,11 @@ class ZaraStockCheckerApp(tk.Tk):
         self._refresh_sizes_list()
 
     def _add_custom_size(self):
-        size = self._custom_size_var.get().strip()
+        size = self._custom_size_var.get().strip().upper()
         if not size:
             return
+        if size == "BEDENSIZ":
+            size = "-"
         if size not in self._sizes:
             self._sizes.append(size)
             self._size_combo["values"] = self._sizes
@@ -446,10 +448,12 @@ class ZaraStockCheckerApp(tk.Tk):
         if not url:
             self._log("Please enter a product link.")
             return
-        size = self._size_var.get().strip()
+        size = self._size_var.get().strip().upper()
         if not size:
             self._log("Please select a size for this item.")
             return
+        if size == "BEDENSIZ":
+            size = "-"
 
         item = {"store": self._brand_var.get(), "url": url, "sizes": [size]}
         self._items.append(item)
@@ -521,7 +525,6 @@ class ZaraStockCheckerApp(tk.Tk):
             stop_event=self._stop_event,
             log=self._log,
             items=list(self._items),
-            sizes=list(self._sizes),
             sleep_min_seconds=self._sleep_min_seconds,
             sleep_max_seconds=self._sleep_max_seconds,
             bot_api=self._bot_api_var.get().strip() or None,

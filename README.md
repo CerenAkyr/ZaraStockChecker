@@ -9,7 +9,7 @@ Bu Python kodu ürünlerin stoklarını kontrol edip istediğiniz beden stoğa g
 - Headless Selenium Chrome scraping
 - Telegram alerting (optional)
 - Sound notifications using `pygame`
-- Configurable URL list, sizes, and sleep delay
+- Configurable per-item sizes and sleep delay
 - Foolproof `.env` handling
 
 ---
@@ -34,19 +34,25 @@ Bu Python kodu ürünlerin stoklarını kontrol edip istediğiniz beden stoğa g
     "urls": [
         {
             "store": "zara",
-            "url": "https://www.zara.com/tr/tr/godeli-halter-yaka-kisa-elbise-p02858777.html?v1=459502627&v2=2420896"
+            "url": "https://www.zara.com/tr/tr/godeli-halter-yaka-kisa-elbise-p02858777.html?v1=459502627&v2=2420896",
+            "sizes": ["XS"]
         },
         {
-            "store": "zara",
-            "url": "https://www.zara.com/tr/tr/godeli-halter-yaka-kisa-elbise-p02858777.html?v1=459502627&v2=2420896"
+            "store": "bershka",
+            "url": "https://www.bershka.com/tr/keten-halter-mini-elbise-c0p181385566.html?colorId=700",
+            "sizes": ["36"]
+        },
+        {
+            "store": "mango",
+            "url": "https://shop.mango.com/tr/tr/p/kadin/aksesuarlar/canta/suni-deri-canta_17000000",
+            "sizes": ["-"]
         }
     ],
-    "sizes_to_check": [ "XS"],
     "sleep_min_seconds": 12,  
     "sleep_max_seconds": 22
 }
 ```
-url kısmına istediğiniz linki, sizes_to_check kısmına istediğiniz bedenleri yazabilirsiniz. İstediğiniz kadar store ve url ekleyebilirsiniz. 
+Her ürün için `sizes` alanını ayrı ayrı yazın. Kıyafet için `"XS"`, ayakkabı için `"36"` gibi değerler kullanabilirsiniz. Bedensiz ürünlerde `"-"` kullanın. Eski `sizes_to_check` alanı hala fallback olarak desteklenir ama yeni formatta gerekli değildir.
 
 ## 4. Botu çalıştırın!
 `python main.py` yazmanız yeterli
@@ -54,6 +60,13 @@ url kısmına istediğiniz linki, sizes_to_check kısmına istediğiniz bedenler
 ## GUI
 Basit bir arayüz ile çalıştırmak için:
 `python gui.py`
+
+## Desktop App Build (macOS)
+Masaüstü uygulaması oluşturmak için:
+`./build_desktop.sh`
+
+Build tamamlanınca uygulama burada oluşur:
+`dist/ZaraStockChecker.app`
 
 ## 5. Opsiyonel: Telegram Mesaj Botu Kurulumu
 + Telegram'a girin -> BotFather'ı seçip /newbot komutunu kullanın.

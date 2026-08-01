@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import sys
 import time
 
 import pygame
@@ -14,14 +15,54 @@ from webdriver_manager.chrome import ChromeDriverManager
 from scraperHelpers import check_stock_bershka, check_stock_mango, check_stock_zara
 
 
+def get_resource_path(relative_path):
+    if getattr(sys, "frozen", False):
+        base_path = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
+    else:
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_path, relative_path)
+
+
 def load_config(config_path):
-    with open(config_path, "r") as config_file:
-        return json.load(config_file)
+    with open(get_resource_path(config_path), "r", encoding="utf-8") as config_file:
+        config = json.load(config_file)
+
+    required_keys = ["urls", "sleep_min_seconds", "sleep_max_seconds"]
+    missing_keys = [key for key in required_keys if key not in config]
+    if missing_keys:
+        raise ValueError(f"Missing required config keys: {', '.join(missing_keys)}")
+
+    return config
+
+
+def normalize_size(size):
+    normalized = str(size).strip()
+    if normalized in {"-", "bedensiz"}:
+        return "-"
+    return normalized.upper()
+
+
+def resolve_item_sizes(item, fallback_sizes=None):
+    sizes = item.get("sizes")
+    if sizes:
+        return [normalize_size(size) for size in sizes]
+    if fallback_sizes:
+        return [normalize_size(size) for size in fallback_sizes]
+    return []
+
+
+def initialize_sound(log):
+    try:
+        pygame.mixer.init()
+        return True
+    except pygame.error as exc:
+        log(f"Sound disabled: {exc}")
+        return False
 
 
 def play_sound(sound_file, log):
     try:
-        pygame.mixer.music.load(sound_file)
+        pygame.mixer.music.load(get_resource_path(sound_file))
         pygame.mixer.music.play()
     except Exception as exc:
         log(f"Sound error: {exc}")
@@ -65,11 +106,18 @@ def run_checker(
     config_path="config.json",
 ):
     config = None
-    if items is None or sizes is None or sleep_min_seconds is None or sleep_max_seconds is None:
+    provided_items = items or []
+    needs_config_fallback = items is None or sleep_min_seconds is None or sleep_max_seconds is None
+    if not needs_config_fallback and sizes is None:
+        needs_config_fallback = any(
+            not item.get("sizes") for item in provided_items if isinstance(item, dict)
+        )
+
+    if needs_config_fallback:
         config = load_config(config_path)
 
     urls_to_check = items if items is not None else config["urls"]
-    sizes_to_check = sizes if sizes is not None else config["sizes_to_check"]
+    sizes_to_check = sizes if sizes is not None else config.get("sizes_to_check", [])
     sleep_min_seconds = (
         sleep_min_seconds if sleep_min_seconds is not None else config["sleep_min_seconds"]
     )
@@ -77,9 +125,7 @@ def run_checker(
         sleep_max_seconds if sleep_max_seconds is not None else config["sleep_max_seconds"]
     )
 
-    pygame.mixer.init()
-
-    cart_status = {item["url"]: False for item in urls_to_check}
+    sound_enabled = initialize_sound(log) if play_sound_on_found else False
 
     if bot_api is None or chat_id is None:
         load_dotenv()
@@ -114,18 +160,22 @@ def run_checker(
                     log("Stopping...")
                     return
 
+                url = item.get("url")
                 try:
-                    if cart_status[item["url"]]:
-                        log("Item already in cart, skipping...")
+                    if not url:
+                        log("Skipping item with missing URL.")
                         continue
 
-                    url = item.get("url")
                     store = item.get("store")
                     driver.get(url)
                     log("--------------------------------")
                     log(f"Url {url} için: ")
 
-                    item_sizes = item.get("sizes") or sizes_to_check
+                    item_sizes = resolve_item_sizes(item, sizes_to_check)
+                    if not item_sizes:
+                        log(f"Skipping {url}: no size configured for this item.")
+                        continue
+
                     if store == "zara":
                         size_in_stock = check_stock_zara(driver, item_sizes)
                     elif store == "bershka":
@@ -139,7 +189,7 @@ def run_checker(
                     if size_in_stock:
                         message = f"🛍️{size_in_stock} beden stokta!!!!\nLink: {url}"
                         log(f"UYARI: {message}")
-                        if play_sound_on_found:
+                        if sound_enabled:
                             play_sound("Crystal.mp3", log)
                         send_telegram_message(message, bot_api, chat_id, log)
                     else:
