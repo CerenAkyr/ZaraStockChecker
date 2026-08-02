@@ -117,7 +117,7 @@ def run_checker(
         config = load_config(config_path)
 
     urls_to_check = items if items is not None else config["urls"]
-    sizes_to_check = sizes if sizes is not None else config.get("sizes_to_check", [])
+    sizes_to_check = sizes if sizes is not None else (config.get("sizes_to_check", []) if config else [])
     sleep_min_seconds = (
         sleep_min_seconds if sleep_min_seconds is not None else config["sleep_min_seconds"]
     )
